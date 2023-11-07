@@ -18,8 +18,8 @@ from tkinter import filedialog
 
 # Register the Ubuntu font
 LabelBase.register(name="Ubuntu",
-                   fn_regular=r"C:\Documents\Kivy_App\Ubuntu\Ubuntu-Regular.ttf",
-                   fn_bold=r"C:\Documents\Kivy_App\Ubuntu\Ubuntu-Bold.ttf")
+                   fn_regular=r"Ubuntu-Regular.ttf",
+                   fn_bold=r"Ubuntu-Bold.ttf")
 
 # Set the window size to a fixed width and height
 kivy.config.Config.set('graphics', 'resizable', '0')
