@@ -16,6 +16,8 @@ from kivy.uix.screenmanager import Screen, ScreenManager
 import tkinter as tk
 from tkinter import filedialog
 
+import PHA_App_Backend as backend
+
 # Register the Ubuntu font
 LabelBase.register(name="Ubuntu",
                    fn_regular=r"Ubuntu-Regular.ttf",
@@ -83,6 +85,11 @@ class MDSections(MDFillRoundFlatButton):
         self.add_widget(label)
 
 class HomeScreen(Screen):
+
+    visited = False
+    text_status = "PREDICTION"
+    uploaded = False
+
     def upload_data(self, instance):
         ## NEED TO USE EXTERNAL FUNCTIONS TO USE THIS DATA
         # Create a root window
@@ -97,6 +104,8 @@ class HomeScreen(Screen):
         # Process the selected file(s)
         if file_paths:
             print("Selected file(s):", file_paths)
+            backend.send_csv(file_paths)
+            self.uploaded = True
 
         # Close the root window
         root.destroy()
@@ -104,6 +113,27 @@ class HomeScreen(Screen):
     def get_prediction(self, instance):
         ## NEED TO CALL EXTERNAL FUNCTIONS TO GET THE PREDICTION
         # ERROR HANDLING => CAN ONLY PREDICT IF DATA CAN BE LOADED
+
+        if self.uploaded:
+            prediction = backend.compute_prediction()
+
+            # NEED TO CHANGE COLOUR HERE FOR HAZARDEOUS AND NOT HAZARDEOUS => Need to modify the class MDCustomFillRoundFlatButton a bit
+
+            self.prediction_output_button = MDCustomFillRoundFlatButton(text = prediction,
+                size_hint = (None, None),  # Allow you to set the size directly
+                width = dp(200),
+                pos_hint = {"center_x": 0.5, "center_y": 0.75}
+            )
+
+            self.prediction_output_button.disabled = True
+
+            self.text_status = prediction
+
+            self.add_widget(self.prediction_output_button)
+
+            self.uploaded = False
+
+        '''
         self.prediction_output_button = MDCustomFillRoundFlatButton(text = "PREDICTED",
             size_hint = (None, None),  # Allow you to set the size directly
             width = dp(200),
@@ -112,15 +142,28 @@ class HomeScreen(Screen):
 
         self.prediction_output_button.disabled = True
 
+        self.text_status = "PREDICTED"
+
         self.add_widget(self.prediction_output_button)
+        '''
 
 
     def on_enter(self):
-        self.prediction_output_button = MDCustomFillRoundFlatButton(text = "PREDICTION",
-            size_hint = (None, None),  # Allow you to set the size directly
-            width = dp(200),
-            pos_hint = {"center_x": 0.5, "center_y": 0.75}
-        )
+        if not self.visited:
+            self.visited = True
+
+            self.prediction_output_button = MDCustomFillRoundFlatButton(text = "PREDICTION",
+                size_hint = (None, None),  # Allow you to set the size directly
+                width = dp(200),
+                pos_hint = {"center_x": 0.5, "center_y": 0.75}
+            )
+
+        else:
+            self.prediction_output_button = MDCustomFillRoundFlatButton(text = self.text_status,
+                size_hint = (None, None),  # Allow you to set the size directly
+                width = dp(200),
+                pos_hint = {"center_x": 0.5, "center_y": 0.75}
+            )
 
         self.prediction_output_button.disabled = True
 
@@ -148,7 +191,7 @@ class HomeScreen(Screen):
         self.add_widget(self.predict_button)
 
     def on_leave(self):
-        self.prediction_output_button = MDCustomFillRoundFlatButton(text = "PREDICTION",
+        self.prediction_output_button = MDCustomFillRoundFlatButton(text = self.text_status,
             size_hint = (None, None),  # Allow you to set the size directly
             width = dp(200),
             pos_hint = {"center_x": 0.5, "center_y": 0.75}
@@ -197,6 +240,8 @@ class PHAApp(MDApp):
             )
 
             self.home_screen.prediction_output_button.disabled = True
+
+            self.home_screen.text_status = "PREDICTION"
 
             self.home_screen.add_widget(self.home_screen.prediction_output_button)
 
