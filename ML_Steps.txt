@@ -1,0 +1,50 @@
+ML Steps:
+
+Dataset Cleaning and Dataset Preparation:
+
+Load the dataset
+Look at the values 
+Remove redundant features or features that are not useful for predicting => name columns can be removed
+Print the dataset information and find out how many null values are there for each column
+Make the null cutoff to 0.4 or 0.5 => made it to 0.4
+Compute the mean of null values and remove columns where the mean of null values is greater than the null cutoff
+Remove the repeating rows => so there would be no duplicates in the data
+After removing the columns mentioned above check the dataset again
+Check the number of null values in pha column and remove them
+After removing rows or examples where pha is null check the dataset again for number of null values in each column
+Next step is to fill null values
+Seperate the dataset into categorical features and numerical features
+For categorical features the null values are filled with most repeating value
+For numerical features the null values are filled with mean 
+At this point the dataset is prepared
+
+Standardizing the features:
+After dataset is prepared, check correlation points and remove highly correlated features greater than 0.99
+After that also remove categoreis in orbit id where occurences are less than 100
+Do label-encoding for neo and pha and one-hot encoding for orbit_id and class => Do this before splitting to ensure all categories are covered
+Label-encoding if less than two classes and one-hot encoding more than two classes and if there is no relation between the data
+Split 70% of dataset into training and 30% into testing
+After this, you would only standardize numerical features => Do this after splitting
+After standardization you perform PCA to get pricipal components => now dataset is ready to be passed into model
+
+Perceptron:
+Perofrmance: Currently just doing only confusion matrix, ask if more is required or this is fine,
+	     Should I plot decision boundary
+
+Perceptron is performing less than Logistic Regression Model => Ask why?
+
+Logistic Regression Model:
+Perofrmance: Currently just doing only confusion matrix, ask if more is required or this is fine
+Not using GD is this fine?
+
+ANN:
+Not using GD is this fine?
+
+Input CSV:
+Should be in a specific format and include cols required and should be converted appropriately for orbit_id => Check in excel if it can be limited to certain values. Also, do error handling within the csv only like only certain values should be allowed for a feature. Reduces code. Also, need to one-hot encode the features.
+
+Standard Scalar and PCA transformation:
+For the test sample need to use Standard Scalar transformation and PCA transformation used for training and just use transform.
+
+Simplicity:
+Just predict for one feature

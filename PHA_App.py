@@ -18,6 +18,10 @@ from tkinter import filedialog
 
 import PHA_App_Backend as backend
 
+import warnings
+
+warnings.filterwarnings('ignore')
+
 # Register the Ubuntu font
 LabelBase.register(name="Ubuntu",
                    fn_regular=r"Ubuntu-Regular.ttf",
@@ -29,7 +33,7 @@ kivy.config.Config.set('graphics', 'width', 1280)
 kivy.config.Config.set('graphics', 'height', 800)
 
 class MDCustomFillRoundFlatButton(MDFillRoundFlatButton):
-    def __init__(self, label_color=(0, 0, 0, 1), **kwargs):
+    def __init__(self, label_color=(0, 0, 0, 1), label_text_color = '#000000', **kwargs):
         super().__init__(**kwargs)
 
         self.width = 500
@@ -39,7 +43,7 @@ class MDCustomFillRoundFlatButton(MDFillRoundFlatButton):
 
         # Create a label with center-aligned text and add it to the button
         label = Label(
-            text = f"[color=000000][b]{self.text}[/b]",
+            text = f"[color={label_text_color}][b]{self.text}[/b]",
             markup = True,
             font_name = "Ubuntu",
             font_size = 40,
@@ -57,7 +61,7 @@ class MDCustomFillRoundFlatButton(MDFillRoundFlatButton):
 
 
 class MDSections(MDFillRoundFlatButton):
-    def __init__(self, label_color=(0, 0, 0, 1), **kwargs):
+    def __init__(self, label_color=[0.0, 0.0, 0.0, 1.0], **kwargs):
         super().__init__(**kwargs)
 
         self.width = 1200
@@ -67,7 +71,7 @@ class MDSections(MDFillRoundFlatButton):
 
         # Create a label with center-aligned text and add it to the button
         label = Label(
-            text = f"[color=000000][b]{self.text}[/b]",
+            text = f"[color=#000000][b]{self.text}[/b]",
             markup = True,
             font_name = "Ubuntu",
             font_size = 25,
@@ -86,9 +90,9 @@ class MDSections(MDFillRoundFlatButton):
 
 class HomeScreen(Screen):
 
-    visited = False
     text_status = "PREDICTION"
     uploaded = False
+    label_text_color = "#000000"
 
     def upload_data(self, instance):
         ## NEED TO USE EXTERNAL FUNCTIONS TO USE THIS DATA
@@ -98,7 +102,7 @@ class HomeScreen(Screen):
 
         # Open a file dialog for selecting files
         file_paths = filedialog.askopenfilename(
-            title="Select files", filetypes=[("All Files", "*.csv*")]
+            title="Select files", filetypes=[("Excel Files", "*.xlsx")]
         )
 
         # Process the selected file(s)
@@ -115,55 +119,30 @@ class HomeScreen(Screen):
         # ERROR HANDLING => CAN ONLY PREDICT IF DATA CAN BE LOADED
 
         if self.uploaded:
-            prediction = backend.compute_prediction()
+            self.text_status = backend.compute_prediction()
 
-            # NEED TO CHANGE COLOUR HERE FOR HAZARDEOUS AND NOT HAZARDEOUS => Need to modify the class MDCustomFillRoundFlatButton a bit
+            self.label_text_color = '#FF0000' if self.text_status == 'HAZARDOUS' else '#006400' if self.text_status == 'NON-HAZARDOUS' else '#000000'
 
-            self.prediction_output_button = MDCustomFillRoundFlatButton(text = prediction,
+            self.prediction_output_button = MDCustomFillRoundFlatButton(text = self.text_status,
                 size_hint = (None, None),  # Allow you to set the size directly
                 width = dp(200),
-                pos_hint = {"center_x": 0.5, "center_y": 0.75}
+                pos_hint = {"center_x": 0.5, "center_y": 0.75},
+                label_text_color = self.label_text_color
             )
 
             self.prediction_output_button.disabled = True
-
-            self.text_status = prediction
 
             self.add_widget(self.prediction_output_button)
 
             self.uploaded = False
 
-        '''
-        self.prediction_output_button = MDCustomFillRoundFlatButton(text = "PREDICTED",
+    def on_enter(self):
+        self.prediction_output_button = MDCustomFillRoundFlatButton(text = self.text_status,
             size_hint = (None, None),  # Allow you to set the size directly
             width = dp(200),
-            pos_hint = {"center_x": 0.5, "center_y": 0.75}
+            pos_hint = {"center_x": 0.5, "center_y": 0.75},
+            label_text_color = self.label_text_color
         )
-
-        self.prediction_output_button.disabled = True
-
-        self.text_status = "PREDICTED"
-
-        self.add_widget(self.prediction_output_button)
-        '''
-
-
-    def on_enter(self):
-        if not self.visited:
-            self.visited = True
-
-            self.prediction_output_button = MDCustomFillRoundFlatButton(text = "PREDICTION",
-                size_hint = (None, None),  # Allow you to set the size directly
-                width = dp(200),
-                pos_hint = {"center_x": 0.5, "center_y": 0.75}
-            )
-
-        else:
-            self.prediction_output_button = MDCustomFillRoundFlatButton(text = self.text_status,
-                size_hint = (None, None),  # Allow you to set the size directly
-                width = dp(200),
-                pos_hint = {"center_x": 0.5, "center_y": 0.75}
-            )
 
         self.prediction_output_button.disabled = True
 
@@ -194,7 +173,8 @@ class HomeScreen(Screen):
         self.prediction_output_button = MDCustomFillRoundFlatButton(text = self.text_status,
             size_hint = (None, None),  # Allow you to set the size directly
             width = dp(200),
-            pos_hint = {"center_x": 0.5, "center_y": 0.75}
+            pos_hint = {"center_x": 0.5, "center_y": 0.75},
+            label_text_color = self.label_text_color
         )
 
         self.prediction_output_button.disabled = True
@@ -233,15 +213,18 @@ class PHAApp(MDApp):
         screen_name = self.screen_manager.current
 
         if (screen_name == 'Home'):
-            self.home_screen.prediction_output_button = MDCustomFillRoundFlatButton(text = "PREDICTION",
+            self.home_screen.text_status = "PREDICTION"
+
+            self.home_screen.label_text_color = '#000000'
+
+            self.home_screen.prediction_output_button = MDCustomFillRoundFlatButton(text = self.home_screen.text_status,
                 size_hint = (None, None),  # Allow you to set the size directly
                 width = dp(200),
-                pos_hint = {"center_x": 0.5, "center_y": 0.75}
+                pos_hint = {"center_x": 0.5, "center_y": 0.75},
+                label_text_color = self.home_screen.label_text_color
             )
 
             self.home_screen.prediction_output_button.disabled = True
-
-            self.home_screen.text_status = "PREDICTION"
 
             self.home_screen.add_widget(self.home_screen.prediction_output_button)
 
