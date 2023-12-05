@@ -1,4 +1,11 @@
+import warnings
+
+warnings.filterwarnings('ignore')
+warnings.filterwarnings("ignore", category=UserWarning, message="Registering Sign")
+
 import kivy
+from kivy.logger import Logger
+import sys
 from kivy.metrics import dp
 from kivymd.app import MDApp
 from kivy.config import Config
@@ -18,14 +25,18 @@ from tkinter import filedialog
 
 import PHA_App_Backend as backend
 
-import warnings
+from kivy.uix.image import AsyncImage
+from kivymd.toast import toast
 
-warnings.filterwarnings('ignore')
+from kivy.uix.relativelayout import RelativeLayout
 
 # Register the Ubuntu font
 LabelBase.register(name="Ubuntu",
                    fn_regular=r"Ubuntu-Regular.ttf",
                    fn_bold=r"Ubuntu-Bold.ttf")
+
+# Register Noto Color Emoji font
+LabelBase.register(name='EmojiFont', fn_regular=r'twemoji.ttf')
 
 # Set the window size to a fixed width and height
 kivy.config.Config.set('graphics', 'resizable', '0')
@@ -72,6 +83,100 @@ class MDSections(MDFillRoundFlatButton):
         # Create a label with center-aligned text and add it to the button
         label = Label(
             text = f"[color=#000000][b]{self.text}[/b]",
+            markup = True,
+            font_name = "Ubuntu",
+            font_size = 25,
+            size_hint = (None, None),
+            halign = "left",  # Set text alignment to center
+            valign = "top",  # Set vertical alignment to middle
+        )
+
+        self.text = ""
+
+        label.text_size = (self.width, self.height)
+        label.width = self.width
+        label.height = self.height
+
+        self.add_widget(label)
+
+class MDInstructionsSection(MDFillRoundFlatButton):
+    def __init__(self, label_color=[0.0, 0.0, 0.0, 1.0], **kwargs):
+        super().__init__(**kwargs)
+
+        self.width = 1200
+        self.height = 650
+
+        self.md_bg_color = [0.85, 0.85, 0.85, 1]  # D9D9D9
+
+        # Creating content for Instructions Section
+        content_text = "\n [color=#000000][b]   General Instructions: [/b] [font=EmojiFont]📜[/font] \n"
+        content_text = content_text + "    Welcome, cosmic traveler! Before you embark on your data odyssey, here are the guiding stars to \n    illuminate your journey.[/color]\n"
+
+        content_text = content_text + "\n [color=#000000][b]  Launching Your Data Adventure! [/b] [font=EmojiFont]🚀[/font] \n"
+        content_text = content_text + "  [color=#000000][b].[/b] Hit the [b]Upload Data[/b] Button and watch the magic unfold as the file browser gracefully reveals itself.[/color] \n"
+        content_text = content_text + "  [color=#000000][b].[/b] Select your Excel file, the treasure chest of 24 features awaits—3 of them shrouded in \n    categorical mystery, the rest flaunting their numerical prowess.[/color] \n"
+
+        content_text = content_text + "\n [color=#000000][b]  The Cosmic Crunch: Predict! [/b] [font=EmojiFont]🌌[/font] \n"
+        content_text = content_text + "  [color=#000000][b].[/b] After your dataset takes center stage, perform the mystical act: Click the [b]Predict Button[/b].[/color] \n"
+        content_text = content_text + "  [color=#000000][b].[/b] Behold as the stars align, revealing the prophecy—Hazardous or Non-Hazardous? The \n    universe awaits your verdict.[/color] \n"
+
+        content_text = content_text + "\n [color=#000000][b]   Data Odyssey Continues: Refresh! [/b] [font=EmojiFont]🔄[/font] \n"
+        content_text = content_text + "  [color=#000000][b].[/b] Feel the need for a cosmic reset? A mere tap on the [b]Refresh Button[/b] sweeps away the previous \n    prediction, leaving a clean slate. Ready for a new celestial journey.[/color] \n"
+
+        content_text = content_text + "\n [color=#000000][b]   Embark Anew: Upload Again! [/b] [font=EmojiFont]🌠[/font] \n"
+        content_text = content_text + "  [color=#000000][b].[/b] Now, with a fresh canvas, beckon new data from the cosmos. Revisit the glory of the [b]Upload Data[/b]\n    Button, select your next data constellation, and let the prediction saga continue.[/color] \n"
+
+        label = Label(
+            text = content_text,
+            markup = True,
+            font_name = "Ubuntu",
+            font_size = 25,
+            size_hint = (None, None),
+            halign = "left",  # Set text alignment to center
+            valign = "top",  # Set vertical alignment to middle
+        )
+
+        self.text = ""
+
+        label.text_size = (self.width, self.height)
+        label.width = self.width
+        label.height = self.height
+
+        self.add_widget(label)
+
+class MDAboutSection(MDFillRoundFlatButton):
+    def __init__(self, label_color=[0.0, 0.0, 0.0, 1.0], **kwargs):
+        super().__init__(**kwargs)
+
+        self.width = 1200
+        self.height = 650
+
+        self.md_bg_color = [0.85, 0.85, 0.85, 1]  # D9D9D9
+
+        # Creating content for Instructions Section
+        content_text = "\n [color=#000000][b]  Celestial Prediction Odyssey: [/b] [font=EmojiFont]☄️[/font] \n"
+        content_text = content_text + " [b].[/b] Embark on a cosmic journey as the [b]PHA Predictor App[/b] foretells the future of asteroids.\n"
+        content_text = content_text + " [b].[/b] Trained on NASA datasets, this mystical model reveals whether an asteroid is [b]hazardous[/b] or \n    [b]non-hazardous[/b].  [/color]\n"
+
+        content_text = content_text + "\n [color=#000000][b]  Astral Connection [/b] [font=EmojiFont]🛰️[/font] \n"
+        content_text = content_text + "  [color=#000000][b].[/b] Witness the synergy with [b]NASA's DART (Double Asteroid Redirection Test)[/b] mission.[/color] \n"
+        content_text = content_text + "  [color=#000000][b].[/b] Explore the alignment of cosmic forces as the app mirrors DART's mission to redirect  \n    hazardous asteroids.[/color] \n"
+
+        content_text = content_text + "\n [color=#000000][b]  Data-Driven Prophecy: [/b] [font=EmojiFont]💫[/font] \n"
+        content_text = content_text + "  [color=#000000][b].[/b] Immerse yourself in the cosmos as the app's predictions unfold based on [b]meticulous data analysis[/b].[/color] \n"
+        content_text = content_text + "  [color=#000000][b].[/b] An interstellar adventure, where data guides us through the celestial unknown.[/color] \n"
+
+        content_text = content_text + "\n [color=#000000][b]   Explore and Expand: [/b] [font=EmojiFont]🔭[/font] \n"
+        content_text = content_text + "  [color=#000000][b].[/b] Uncover the depths of space responsibly with the app's intuitive features.[/color] \n"
+        content_text = content_text + "  [color=#000000][b].[/b] Chart your course through the cosmic seas, exploring and expanding our [b]understanding of asteroid[/b].[/color] \n"
+
+        content_text = content_text + "\n [color=#000000][b]  Vision for the Cosmos: [/b] [font=EmojiFont]🌍[/font] \n"
+        content_text = content_text + "  [color=#000000][b].[/b] Envision a future where cosmic predictions guide our steps in safeguarding [b]Earth[/b].\n"
+        content_text = content_text + "  [color=#000000][b].[/b] The App aspires to be a guiding star, helping humanity [b]navigate the vast expanse of space[/b]. [/color] \n"
+
+
+        label = Label(
+            text = content_text,
             markup = True,
             font_name = "Ubuntu",
             font_size = 25,
@@ -184,7 +289,7 @@ class HomeScreen(Screen):
 class AboutScreen(Screen):
     def on_enter(self):
         # About Section
-        self.about_section = MDSections(text = "\n About Section Needs To Be Filled \n",
+        self.about_section = MDAboutSection(text = "",
             size_hint = (None, None),  # Allow you to set the size directly
             width = dp(200),
             pos_hint = {"center_x": 0.5, "center_y": 0.55}
@@ -197,7 +302,8 @@ class AboutScreen(Screen):
 class InstructionsScreen(Screen):
     def on_enter(self):
         # Instructions Section
-        self.instructions_section = MDSections(text = "\n Instructions Section Needs To Be Filled \n",
+
+        self.instructions_section = MDInstructionsSection(text = "",
             size_hint = (None, None),  # Allow you to set the size directly
             width = dp(200),
             pos_hint = {"center_x": 0.5, "center_y": 0.55}
@@ -295,4 +401,8 @@ class PHAApp(MDApp):
             #self.screen.remove_widget(self.prediction_output_button)
 
 if __name__ == '__main__':
+    kivy.config.Config.set('kivy', 'log_level', 'warning')
+
+    #Logger.info_filter = lambda record: 'Registering DebugGradientIdentity' not in record.getMessage()
+
     PHAApp().run()
